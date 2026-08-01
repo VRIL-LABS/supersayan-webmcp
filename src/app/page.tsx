@@ -21,7 +21,6 @@ import {
   Wifi,
   Cpu,
   Monitor,
-  Code2,
   ArrowRight,
   ChevronRight,
   CheckCircle2,
@@ -37,7 +36,6 @@ import {
   Github,
   Scale,
   MousePointer2,
-  Framer,
   GitBranch,
   Webhook,
   Database,
@@ -47,7 +45,6 @@ import {
   Gauge,
   ScanLine,
   Braces,
-  Layers,
   Chrome,
   UserCheck,
   Bot,
@@ -1159,138 +1156,6 @@ function ThreatIntel() {
 }
 
 /* ────────────────────────────────────────────────────────────────── */
-/*  6. guest271314 ANALYSIS                                          */
-/* ────────────────────────────────────────────────────────────────── */
-
-const guestRepos = [
-  {
-    name: 'NativeTransferableStreams',
-    description: 'Execute arbitrary shell scripts from browser at any origin',
-    threat: 'CRITICAL',
-    threatColor: 'text-sayan-red border-sayan-red/30 bg-sayan-red/10',
-    technique: 'Transferable Streams + NativeMessaging',
-    icon: <Terminal className="h-4 w-4" />,
-  },
-  {
-    name: 'socket.iwa',
-    description: 'Browser becomes a full TCP/UDP server — Tor bootstraps in WASM',
-    threat: 'CRITICAL',
-    threatColor: 'text-sayan-red border-sayan-red/30 bg-sayan-red/10',
-    technique: 'Isolated Web App + Direct Sockets',
-    icon: <Network className="h-4 w-4" />,
-  },
-  {
-    name: 'HeadlessDetectJS',
-    description: '6-signal headless detection scoring system',
-    threat: 'RESEARCH',
-    threatColor: 'text-sayan-cyan border-sayan-cyan/30 bg-sayan-cyan/10',
-    technique: 'Composite signal detection',
-    icon: <Eye className="h-4 w-4" />,
-  },
-  {
-    name: 'remove-csp-header',
-    description: 'Strips CSP headers, neutralizing browser XSS defenses',
-    threat: 'HIGH',
-    threatColor: 'text-sayan-amber border-sayan-amber/30 bg-sayan-amber/10',
-    technique: 'Service Worker header manipulation',
-    icon: <ShieldX className="h-4 w-4" />,
-  },
-  {
-    name: 'isolated-web-app-utilities',
-    description: 'IWA access from any page → Direct Sockets → raw TCP/UDP',
-    threat: 'CRITICAL',
-    threatColor: 'text-sayan-red border-sayan-red/30 bg-sayan-red/10',
-    technique: 'IWA boundary bypass + Direct Sockets API',
-    icon: <Code2 className="h-4 w-4" />,
-  },
-  {
-    name: 'WebExtensionMessageStream',
-    description: 'Full-duplex streaming via Mojo IPC + Transferable Streams',
-    threat: 'HIGH',
-    threatColor: 'text-sayan-amber border-sayan-amber/30 bg-sayan-amber/10',
-    technique: 'Chrome Extension Mojo IPC bridge',
-    icon: <Layers className="h-4 w-4" />,
-  },
-];
-
-function GuestAnalysis() {
-  return (
-    <section className="py-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-center mb-10">
-            <Badge variant="outline" className="border-sayan-cyan/30 text-sayan-cyan bg-sayan-cyan/5 mb-4">
-              <Framer className="h-3.5 w-3.5 mr-1.5" />
-              Security Research
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-text mb-3">
-              guest271314: Browser Security&apos;s Most Creative Researcher
-            </h2>
-            <p className="text-text-dim text-lg max-w-2xl mx-auto">
-              Demonstrating how browser API seams can be exploited to create channels no single API was designed to enable
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {guestRepos.map((repo, i) => (
-              <motion.div
-                key={repo.name}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-              >
-                <Card className="bg-surface border-border-custom p-5 card-hover-cyan h-full">
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sayan-cyan">{repo.icon}</span>
-                      <h4 className="text-sm font-semibold text-text font-mono">{repo.name}</h4>
-                    </div>
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 shrink-0 ${repo.threatColor}`}>
-                      {repo.threat}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-text-dim leading-relaxed mb-3">{repo.description}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-text-dim">Key Technique:</span>
-                    <code className="text-[10px] font-mono text-sayan-cyan bg-sayan-cyan/10 px-1.5 py-0.5 rounded">
-                      {repo.technique}
-                    </code>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          <Card className="bg-surface border-sayan-cyan/20 p-6 card-hover-cyan">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-lg bg-sayan-cyan/10 border border-sayan-cyan/20 shrink-0">
-                <Info className="h-5 w-5 text-sayan-cyan" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-text mb-2">Key Insight</h4>
-                <p className="text-sm text-text-dim leading-relaxed italic">
-                  &ldquo;The browser&apos;s security model has many seams where APIs meet, and these seams can be
-                  exploited to create channels that no single API was designed to enable.&rdquo;
-                </p>
-                <p className="text-xs text-text-dim mt-2">
-                  — Summarizing guest271314&apos;s body of work on browser API boundary exploitation
-                </p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────────── */
 /*  7. SUPER SAYAN FEATURES                                          */
 /* ────────────────────────────────────────────────────────────────── */
 
@@ -1698,8 +1563,6 @@ export default function SuperSayanMCPPage() {
         <MCPcveDatabase />
         <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
         <ThreatIntel />
-        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-        <GuestAnalysis />
         <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
         <SuperSayanFeatures />
         <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
