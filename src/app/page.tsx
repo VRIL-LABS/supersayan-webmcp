@@ -972,14 +972,14 @@ function MCPcveDatabase() {
 
           <div className="rounded-xl border border-border-custom overflow-hidden bg-surface/50">
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow className="border-border-custom hover:bg-transparent">
-                    <TableHead className="text-text-dim font-semibold text-xs">CVE ID</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs">Severity</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs">Component</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs">Description</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs">Status</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[130px]">CVE ID</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[90px]">Severity</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[120px]">Component</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[28%]">Description</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[110px]">Status</TableHead>
                     <TableHead className="text-text-dim font-semibold text-xs">Digital Drone Relevance</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -990,12 +990,12 @@ function MCPcveDatabase() {
                       <TableCell>
                         <SeverityBadge severity={cve.severity} />
                       </TableCell>
-                      <TableCell className="text-xs text-text whitespace-nowrap">{cve.component}</TableCell>
-                      <TableCell className="text-xs text-text-dim max-w-[200px]">{cve.description}</TableCell>
+                      <TableCell className="text-xs text-text break-words">{cve.component}</TableCell>
+                      <TableCell className="text-xs text-text-dim break-words leading-relaxed">{cve.description}</TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={`text-[10px] ${
+                          className={`text-[10px] whitespace-nowrap ${
                             cve.status.includes('Patched')
                               ? 'text-sayan-emerald border-sayan-emerald/30 bg-sayan-emerald/10'
                               : cve.status.includes('Active')
@@ -1006,7 +1006,7 @@ function MCPcveDatabase() {
                           {cve.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-[11px] text-text-dim max-w-[250px]">{cve.digitalDroneRelevance}</TableCell>
+                      <TableCell className="text-[11px] text-text-dim break-words leading-relaxed">{cve.digitalDroneRelevance}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
