@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glow Settings — WebMCP Security</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1C1F2E;
+      --bg2: #1E2840;
+      --bg3: #1a2236;
+      --teal: #00FFC8;
+      --blue: #0A84FF;
+      --indigo: #6E3DDB;
+      --cerulean: #00B4D8;
+      --arctic: #B8F5FF;
+      --ghost: #E8EEFF;
+      --muted: #7a8ba0;
+      --border: rgba(0,180,216,0.18);
+      --radius: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--ghost);
+      min-height: 100vh;
+      padding: 0 0 40px;
+    }
+    .header {
+      background: linear-gradient(135deg, #1C1F2E 0%, #122033 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 18px rgba(0,255,200,0.35);
+    }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 28px 20px 0; }
+
+    .section {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .section-icon.teal { background: rgba(0,255,200,0.12); }
+    .section-icon.blue { background: rgba(10,132,255,0.12); }
+    .section-icon.orange { background: rgba(255,107,61,0.12); }
+    .section-title { font-size: 14px; font-weight: 700; color: var(--ghost); }
+    .section-desc { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(0,180,216,0.08);
+      transition: background 0.15s;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row:hover { background: rgba(0,180,216,0.04); }
+    .toggle-info { flex: 1; padding-right: 16px; }
+    .toggle-label { font-size: 13px; font-weight: 600; color: var(--ghost); }
+    .toggle-desc { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #2a3450;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: 1px solid rgba(0,180,216,0.2);
+    }
+    .toggle input:checked + .toggle-track { background: var(--teal); border-color: var(--teal); }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    .scan-log {
+      padding: 14px 18px;
+      max-height: 280px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .log-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,180,216,0.06);
+      font-size: 11px;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: var(--muted); min-width: 80px; }
+    .log-url { color: var(--cerulean); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .log-threat {
+      font-weight: 700;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      text-transform: uppercase;
+    }
+    .log-threat.safe { background: rgba(0,255,200,0.1); color: var(--teal); }
+    .log-threat.low { background: rgba(0,180,216,0.1); color: var(--cerulean); }
+    .log-threat.medium { background: rgba(255,193,7,0.1); color: #FFC107; }
+    .log-threat.high { background: rgba(255,107,61,0.1); color: #FF6B3D; }
+    .log-threat.critical { background: rgba(255,50,50,0.1); color: #FF3B3B; }
+    .empty-log { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 0; }
+
+    .btn-row { display: flex; gap: 10px; padding: 14px 18px; }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      border: none;
+      letter-spacing: 0.03em;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: linear-gradient(90deg, var(--blue), var(--teal)); color: #0A0E1A; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-danger { background: rgba(255,50,50,0.12); border: 1px solid rgba(255,50,50,0.2); color: #FF6B6B; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+    .stat-card {
+      background: var(--bg3);
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-icon">&#9673;</div>
+    <div>
+      <div class="logo-text">Glow</div>
+      <div class="logo-sub">WebMCP Security Shield — Settings</div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-num" id="statScans">0</div><div class="stat-label">Scans</div></div>
+        <div class="stat-card"><div class="stat-num" id="statThreats">0</div><div class="stat-label">Threats</div></div>
+        <div class="stat-card"><div class="stat-num" id="statBlocked">0</div><div class="stat-label">Blocked</div></div>
+        <div class="stat-card"><div class="stat-num" id="statDays">0</div><div class="stat-label">Days Active</div></div>
+      </div>
+    </div>
+
+    <!-- Defensive Guards -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon teal">&#9673;</div>
+        <div>
+          <div class="section-title">Defensive Guards</div>
+          <div class="section-desc">Toggle individual protective countermeasures</div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">MSTI Shield</div>
+          <div class="toggle-desc">Monitor MCP tool list for injection attacks — detects rogue tools added mid-session</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-msti" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">AI Agent Radar</div>
+          <div class="toggle-desc">Detect headless browsers, automation frameworks, and AI agent fingerprints</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-ai-agent" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">WebRTC Leak Protection</div>
+          <div class="toggle-desc">Prevent real IP address disclosure through WebRTC ICE candidate leaks</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-webrtc" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Tool Integrity Verification</div>
+          <div class="toggle-desc">Validate MCP tool definitions against known-good checksums and detect poisoned schemas</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-tool-integrity" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Session Guard</div>
+          <div class="toggle-desc">Monitor for AI session hijacking, anomalous message patterns, and unauthorized session tokens</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-session" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">GPU Cache Guard</div>
+          <div class="toggle-desc">Defend against GPU cache timing side-channel attacks used for agent fingerprinting</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-gpu" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Elicitation Guard</div>
+          <div class="toggle-desc">Block prompt injection and elicitation attacks targeting AI assistants via page content</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-elicitation" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Abort Execution Guard</div>
+          <div class="toggle-desc">Prevent fetch abort-race timing attacks used for covert data exfiltration</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-abort" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Declarative Form Guard</div>
+          <div class="toggle-desc">Detect hijacked form submissions targeting AI agent tool invocations</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-decl-form" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Supply Chain Guard</div>
+          <div class="toggle-desc">Verify MCP package integrity and detect supply chain compromises in loaded tool servers</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-supply-chain" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">QUIC Replay Guard</div>
+          <div class="toggle-desc">Block QUIC 0-RTT replay attacks that can be weaponized for MCP session replay</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-quic-replay" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">CSS Key Guard</div>
+          <div class="toggle-desc">Prevent CSS-based keylogging and covert channel attacks via style computation timing</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="guard-css-key" checked><div class="toggle-track"></div></label>
+      </div>
+    </div>
+
+    <!-- Scanning behaviour -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">&#8635;</div>
+        <div>
+          <div class="section-title">Scan Behavior</div>
+          <div class="section-desc">Control when and how Glow performs threat scans</div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Auto-scan on page load</div>
+          <div class="toggle-desc">Run a full threat scan automatically when a page finishes loading</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="setting-auto-scan" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Badge threat level</div>
+          <div class="toggle-desc">Show threat level score on the extension badge icon in the Chrome toolbar</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="setting-badge" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Alert on HIGH / CRITICAL</div>
+          <div class="toggle-desc">Show a browser notification when a page scan returns HIGH or CRITICAL threat level</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="setting-notify-high" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Store scan history</div>
+          <div class="toggle-desc">Keep a local log of scan results (stored only in chrome.storage.local, never uploaded)</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="setting-history" checked><div class="toggle-track"></div></label>
+      </div>
+    </div>
+
+    <!-- Scan history -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">&#128203;</div>
+        <div>
+          <div class="section-title">Scan History</div>
+          <div class="section-desc">Recent page scans stored locally on this device</div>
+        </div>
+      </div>
+      <div class="scan-log" id="scanLog">
+        <div class="empty-log">No scans recorded yet. Visit a page and run a scan.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="exportBtn">Export JSON</button>
+        <button class="btn btn-ghost" id="exportCsvBtn">Export CSV</button>
+        <button class="btn btn-danger" id="clearHistoryBtn">Clear History</button>
+      </div>
+    </div>
+
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
