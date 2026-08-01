@@ -291,7 +291,7 @@ function HeroSection() {
             custom={1}
             className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-6 animate-gradient-sayan"
           >
-            SuperSayanMCP
+            Supersayan WebMCP Security
           </motion.h1>
 
           <motion.p
