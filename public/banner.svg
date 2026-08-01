@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200" role="img" aria-label="SuperSayan MCP Security banner">
+  <defs>
+    <!-- Background gradient: Deep Void → Deep space -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D0F1A"/>
+      <stop offset="50%" stop-color="#122033"/>
+      <stop offset="100%" stop-color="#003A52"/>
+    </linearGradient>
+
+    <!-- Aurora Shard gradient for title text -->
+    <linearGradient id="aurora" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6E3DDB"/>
+      <stop offset="30%" stop-color="#0A84FF"/>
+      <stop offset="65%" stop-color="#00B4D8"/>
+      <stop offset="100%" stop-color="#00FFC8"/>
+    </linearGradient>
+
+    <!-- Ionosphere gradient for subtitle -->
+    <linearGradient id="iono" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#00FFC8"/>
+    </linearGradient>
+
+    <!-- Teal glow filter -->
+    <filter id="glow-teal" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Blue glow filter for shield -->
+    <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle soft glow for grid lines -->
+    <filter id="glow-soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip path for the whole banner -->
+    <clipPath id="banner-clip">
+      <rect width="900" height="200" rx="12"/>
+    </clipPath>
+
+    <!-- Mask for scan line fade -->
+    <linearGradient id="scan-fade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0"/>
+      <stop offset="20%" stop-color="white" stop-opacity="1"/>
+      <stop offset="80%" stop-color="white" stop-opacity="1"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="scan-mask">
+      <rect width="900" height="200" fill="url(#scan-fade)"/>
+    </mask>
+  </defs>
+
+  <style>
+    /* ── Scan line sweep ── */
+    @keyframes scan {
+      0%   { transform: translateY(-30px); opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 0.6; }
+      100% { transform: translateY(230px); opacity: 0; }
+    }
+
+    /* ── Grid pulse ── */
+    @keyframes grid-pulse {
+      0%, 100% { opacity: 0.06; }
+      50%       { opacity: 0.13; }
+    }
+
+    /* ── Shield pulse ── */
+    @keyframes shield-pulse {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #00FFC8CC); }
+      50%       { opacity: 0.75; filter: drop-shadow(0 0 14px #00FFC8FF); }
+    }
+
+    /* ── Title fade-in + slide ── */
+    @keyframes title-in {
+      0%   { opacity: 0; transform: translateX(-18px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Subtitle fade-in ── */
+    @keyframes sub-in {
+      0%   { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Badge fade-in ── */
+    @keyframes badge-in {
+      0%   { opacity: 0; transform: scale(0.88); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Node ping rings ── */
+    @keyframes ping {
+      0%   { r: 3; opacity: 0.9; }
+      100% { r: 10; opacity: 0; }
+    }
+
+    /* ── Dashed orbit rotation ── */
+    @keyframes orbit {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── Counter-orbit ── */
+    @keyframes orbit-ccw {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(-360deg); }
+    }
+
+    /* ── Threat line draw ── */
+    @keyframes line-draw {
+      0%   { stroke-dashoffset: 120; opacity: 0; }
+      15%  { opacity: 1; }
+      60%  { stroke-dashoffset: 0; opacity: 1; }
+      85%  { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    /* ── CVE badge glow pulse ── */
+    @keyframes cve-pulse {
+      0%, 100% { opacity: 0.85; }
+      50%       { opacity: 1; }
+    }
+
+    /* Applied classes */
+    .grid-h { animation: grid-pulse 4s ease-in-out infinite; }
+    .grid-v { animation: grid-pulse 4s ease-in-out infinite 1.2s; }
+    .scan-line { animation: scan 3.6s linear infinite; }
+    .scan-line-2 { animation: scan 3.6s linear infinite 1.8s; }
+    .shield { animation: shield-pulse 2.8s ease-in-out infinite; }
+    .title  { animation: title-in 0.7s cubic-bezier(0.12, 0, 1, 1) 0.1s both; }
+    .subtitle { animation: sub-in 0.6s ease-out 0.55s both; }
+    .badge  { animation: badge-in 0.5s ease-out 0.9s both; }
+    .badge2 { animation: badge-in 0.5s ease-out 1.05s both; }
+    .badge3 { animation: badge-in 0.5s ease-out 1.2s both; }
+
+    .node-ring  { animation: ping 2.4s ease-out infinite; }
+    .node-ring2 { animation: ping 2.4s ease-out infinite 0.8s; }
+    .node-ring3 { animation: ping 2.4s ease-out infinite 1.6s; }
+
+    .orbit-ring  { transform-origin: 820px 100px; animation: orbit 12s linear infinite; }
+    .orbit-ring2 { transform-origin: 820px 100px; animation: orbit-ccw 9s linear infinite; }
+
+    .threat-line  { stroke-dasharray: 120; animation: line-draw 5s ease-in-out infinite; }
+    .threat-line2 { stroke-dasharray: 120; animation: line-draw 5s ease-in-out infinite 1.7s; }
+    .threat-line3 { stroke-dasharray: 120; animation: line-draw 5s ease-in-out infinite 3.2s; }
+
+    .cve-badge { animation: cve-pulse 3s ease-in-out infinite; }
+    .cve-badge2 { animation: cve-pulse 3s ease-in-out infinite 1s; }
+  </style>
+
+  <g clip-path="url(#banner-clip)">
+    <!-- Background -->
+    <rect width="900" height="200" fill="url(#bg)"/>
+
+    <!-- Grid lines (horizontal) -->
+    <g class="grid-h" mask="url(#scan-mask)">
+      <line x1="0" y1="25"  x2="900" y2="25"  stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="50"  x2="900" y2="50"  stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="75"  x2="900" y2="75"  stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="100" x2="900" y2="100" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="125" x2="900" y2="125" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="150" x2="900" y2="150" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="0" y1="175" x2="900" y2="175" stroke="#00B4D8" stroke-width="0.5"/>
+    </g>
+
+    <!-- Grid lines (vertical) -->
+    <g class="grid-v" mask="url(#scan-mask)">
+      <line x1="100" y1="0" x2="100" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="200" y1="0" x2="200" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="300" y1="0" x2="300" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="400" y1="0" x2="400" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="500" y1="0" x2="500" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="600" y1="0" x2="600" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="700" y1="0" x2="700" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+      <line x1="800" y1="0" x2="800" y2="200" stroke="#00B4D8" stroke-width="0.5"/>
+    </g>
+
+    <!-- Scan lines -->
+    <rect class="scan-line" x="0" y="0" width="900" height="2" fill="#00FFC8" fill-opacity="0.18" mask="url(#scan-mask)"/>
+    <rect class="scan-line-2" x="0" y="0" width="900" height="1.5" fill="#0A84FF" fill-opacity="0.14" mask="url(#scan-mask)"/>
+
+    <!-- ── Right-side security radar visual ── -->
+    <!-- Orbit rings -->
+    <g class="orbit-ring">
+      <circle cx="820" cy="100" r="52" fill="none" stroke="#0A84FF" stroke-width="0.8" stroke-dasharray="6 4" opacity="0.5"/>
+    </g>
+    <g class="orbit-ring2">
+      <circle cx="820" cy="100" r="38" fill="none" stroke="#00FFC8" stroke-width="0.6" stroke-dasharray="4 6" opacity="0.4"/>
+    </g>
+
+    <!-- Static outer ring -->
+    <circle cx="820" cy="100" r="65" fill="none" stroke="#00B4D8" stroke-width="0.5" opacity="0.2"/>
+
+    <!-- Threat lines (animated) -->
+    <line class="threat-line"  x1="820" y1="100" x2="760" y2="48"  stroke="#FF4D6D" stroke-width="1.2"/>
+    <line class="threat-line2" x1="820" y1="100" x2="760" y2="148" stroke="#FF4D6D" stroke-width="1.2"/>
+    <line class="threat-line3" x1="820" y1="100" x2="755" y2="100" stroke="#FFB700" stroke-width="1.2"/>
+
+    <!-- Threat nodes with ping rings -->
+    <circle class="node-ring"  cx="760" cy="48"  r="3" fill="none" stroke="#FF4D6D" stroke-width="1.2"/>
+    <circle cx="760" cy="48"  r="3" fill="#FF4D6D" opacity="0.9"/>
+
+    <circle class="node-ring2" cx="760" cy="148" r="3" fill="none" stroke="#FF4D6D" stroke-width="1.2"/>
+    <circle cx="760" cy="148" r="3" fill="#FF4D6D" opacity="0.9"/>
+
+    <circle class="node-ring3" cx="755" cy="100" r="3" fill="none" stroke="#FFB700" stroke-width="1.2"/>
+    <circle cx="755" cy="100" r="3" fill="#FFB700" opacity="0.9"/>
+
+    <!-- Shield icon (center of radar) -->
+    <g class="shield" filter="url(#glow-blue)">
+      <!-- Shield outline -->
+      <path d="M820 74 L840 82 L840 100 Q840 115 820 124 Q800 115 800 100 L800 82 Z"
+            fill="none" stroke="#00FFC8" stroke-width="1.8" stroke-linejoin="round"/>
+      <!-- Shield fill -->
+      <path d="M820 74 L840 82 L840 100 Q840 115 820 124 Q800 115 800 100 L800 82 Z"
+            fill="#00FFC8" fill-opacity="0.07"/>
+      <!-- Checkmark / lock -->
+      <path d="M813 100 L818 105 L828 95" fill="none" stroke="#00FFC8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Center dot of radar -->
+    <circle cx="820" cy="100" r="2.5" fill="#00FFC8" opacity="0.9"/>
+
+    <!-- ── CVE count badges (right side) ── -->
+    <g class="cve-badge">
+      <rect x="756" y="25" width="44" height="16" rx="4" fill="#FF4D6D" fill-opacity="0.15" stroke="#FF4D6D" stroke-width="0.8"/>
+      <text x="778" y="36.5" font-family="'Courier New', monospace" font-size="8" fill="#FF4D6D" text-anchor="middle" font-weight="bold">15 CVEs</text>
+    </g>
+    <g class="cve-badge2">
+      <rect x="756" y="158" width="53" height="16" rx="4" fill="#FFB700" fill-opacity="0.12" stroke="#FFB700" stroke-width="0.8"/>
+      <text x="782.5" y="169.5" font-family="'Courier New', monospace" font-size="8" fill="#FFB700" text-anchor="middle" font-weight="bold">0-DAY 2026</text>
+    </g>
+
+    <!-- ── Left content area ── -->
+
+    <!-- VRIL LABS label -->
+    <g class="subtitle">
+      <text x="44" y="52" font-family="'Courier New', monospace" font-size="9" fill="#00B4D8" letter-spacing="3" opacity="0.9">VRIL LABS</text>
+    </g>
+
+    <!-- Main title: SuperSayan -->
+    <g class="title" filter="url(#glow-teal)">
+      <text x="40" y="108"
+            font-family="'Segoe UI', 'Inter', system-ui, sans-serif"
+            font-size="46"
+            font-weight="800"
+            fill="url(#aurora)"
+            letter-spacing="-1">SuperSayan</text>
+    </g>
+
+    <!-- MCP Security subtitle -->
+    <g class="subtitle">
+      <text x="42" y="130"
+            font-family="'Segoe UI', 'Inter', system-ui, sans-serif"
+            font-size="15"
+            font-weight="400"
+            fill="#B8F5FF"
+            letter-spacing="2"
+            opacity="0.85">MCP SECURITY</text>
+    </g>
+
+    <!-- Tagline -->
+    <g class="subtitle">
+      <text x="42" y="154"
+            font-family="'Segoe UI', 'Inter', system-ui, sans-serif"
+            font-size="10.5"
+            fill="#E8EEFF"
+            opacity="0.55"
+            letter-spacing="0.3">WebMCP vulnerability detection, offensive simulation &amp; defensive hardening</text>
+    </g>
+
+    <!-- Tech badges -->
+    <g class="badge">
+      <rect x="40" y="165" width="72" height="18" rx="9" fill="#0A84FF" fill-opacity="0.18" stroke="#0A84FF" stroke-width="0.8"/>
+      <text x="76" y="177.5" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" fill="#B8F5FF" text-anchor="middle" font-weight="500">Next.js 16</text>
+    </g>
+    <g class="badge2">
+      <rect x="120" y="165" width="72" height="18" rx="9" fill="#00FFC8" fill-opacity="0.12" stroke="#00FFC8" stroke-width="0.8"/>
+      <text x="156" y="177.5" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" fill="#00FFC8" text-anchor="middle" font-weight="500">TypeScript</text>
+    </g>
+    <g class="badge3">
+      <rect x="200" y="165" width="72" height="18" rx="9" fill="#6E3DDB" fill-opacity="0.25" stroke="#6E3DDB" stroke-width="0.8"/>
+      <text x="236" y="177.5" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" fill="#B8F5FF" text-anchor="middle" font-weight="500">Chrome Ext</text>
+    </g>
+
+    <!-- Left accent bar -->
+    <rect x="0" y="0" width="4" height="200" fill="url(#iono)" opacity="0.7"/>
+
+    <!-- Bottom accent line -->
+    <rect x="0" y="197" width="900" height="3" fill="url(#aurora)" opacity="0.5"/>
+  </g>
+</svg>
