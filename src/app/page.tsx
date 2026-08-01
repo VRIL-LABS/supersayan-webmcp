@@ -1573,6 +1573,23 @@ function ChromeExtensionConcept() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Download CTA */}
+              <a
+                href="https://github.com/VRIL-LABS/supersayan-mcp/src/downloads/glow-chrome-ext.tar.gz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full"
+              >
+                <Button
+                  size="lg"
+                  className="w-full bg-sayan-red hover:bg-sayan-red/90 text-white h-12 font-semibold flex items-center justify-center gap-2"
+                >
+                  <Chrome className="h-4 w-4" />
+                  Download Glow Extension (.tar.gz)
+                  <ExternalLink className="h-3.5 w-3.5 ml-1 opacity-70" />
+                </Button>
+              </a>
             </div>
           </div>
         </motion.div>
@@ -1615,6 +1632,15 @@ function Footer() {
               >
                 <Github className="h-3.5 w-3.5" />
                 GitHub
+              </a>
+              <a
+                href="https://github.com/VRIL-LABS/supersayan-mcp/src/downloads/glow-chrome-ext.tar.gz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-text-dim hover:text-sayan-red transition-colors flex items-center gap-1.5"
+              >
+                <Chrome className="h-3.5 w-3.5" />
+                Glow Extension
               </a>
             </div>
             <div className="flex flex-col gap-2">

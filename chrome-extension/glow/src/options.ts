@@ -1,73 +1,85 @@
 /**
  * Glow — Options Page Script
- * Renders settings toggles (guards + scan behavior), displays scan history,
- * and provides JSON/CSV export and history clearing.
+ *
+ * Reads settings via chrome.runtime.sendMessage (routed through background) so
+ * all contexts share a single source of truth. chrome.storage.local.get used
+ * directly only for stats (read-only, no mutation path). Orphan detection on
+ * every chrome.runtime call (api-handle-context-invalidated). Auto-save on every
+ * toggle change (options-auto-save).
  */
 
 import type { GlowMessage, GlowScanResult, GlowSettings } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
-// ── DOM refs ──────────────────────────────────────────────────────────────────
-const $scanLog       = document.getElementById('scanLog')!;
-const $exportBtn     = document.getElementById('exportBtn')!;
-const $exportCsvBtn  = document.getElementById('exportCsvBtn')!;
-const $clearHistory  = document.getElementById('clearHistoryBtn')!;
-const $statScans     = document.getElementById('statScans')!;
-const $statThreats   = document.getElementById('statThreats')!;
-const $statBlocked   = document.getElementById('statBlocked')!;
-const $statDays      = document.getElementById('statDays')!;
+// ── Orphan guard ──────────────────────────────────────────────────────────────
+function isAlive(): boolean {
+  try { return !!chrome.runtime?.id; } catch { return false; }
+}
 
-// ── Guard toggle IDs ──────────────────────────────────────────────────────────
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const $scanLog      = document.getElementById('scanLog')!;
+const $exportBtn    = document.getElementById('exportBtn')!;
+const $exportCsvBtn = document.getElementById('exportCsvBtn')!;
+const $clearHistory = document.getElementById('clearHistoryBtn')!;
+const $statScans    = document.getElementById('statScans')!;
+const $statThreats  = document.getElementById('statThreats')!;
+const $statBlocked  = document.getElementById('statBlocked')!;
+const $statDays     = document.getElementById('statDays')!;
+
+// ── Guard / setting toggle maps ───────────────────────────────────────────────
 const GUARD_IDS: Array<{ id: string; key: keyof GlowSettings['guards'] }> = [
-  { id: 'guard-msti',         key: 'msti' },
-  { id: 'guard-ai-agent',     key: 'aiAgent' },
-  { id: 'guard-webrtc',       key: 'webrtc' },
+  { id: 'guard-msti',           key: 'msti' },
+  { id: 'guard-ai-agent',       key: 'aiAgent' },
+  { id: 'guard-webrtc',         key: 'webrtc' },
   { id: 'guard-tool-integrity', key: 'toolIntegrity' },
-  { id: 'guard-session',      key: 'session' },
-  { id: 'guard-gpu',          key: 'gpu' },
-  { id: 'guard-elicitation',  key: 'elicitation' },
-  { id: 'guard-abort',        key: 'abortExecution' },
-  { id: 'guard-decl-form',    key: 'declForm' },
-  { id: 'guard-supply-chain', key: 'supplyChain' },
-  { id: 'guard-quic-replay',  key: 'quicReplay' },
-  { id: 'guard-css-key',      key: 'cssKey' },
+  { id: 'guard-session',        key: 'session' },
+  { id: 'guard-gpu',            key: 'gpu' },
+  { id: 'guard-elicitation',    key: 'elicitation' },
+  { id: 'guard-abort',          key: 'abortExecution' },
+  { id: 'guard-decl-form',      key: 'declForm' },
+  { id: 'guard-supply-chain',   key: 'supplyChain' },
+  { id: 'guard-quic-replay',    key: 'quicReplay' },
+  { id: 'guard-css-key',        key: 'cssKey' },
 ];
 
 const SETTING_IDS: Array<{ id: string; key: keyof Omit<GlowSettings, 'guards'> }> = [
-  { id: 'setting-auto-scan',    key: 'autoScan' },
-  { id: 'setting-badge',        key: 'badge' },
-  { id: 'setting-notify-high',  key: 'notifyHigh' },
-  { id: 'setting-history',      key: 'storeHistory' },
+  { id: 'setting-auto-scan',   key: 'autoScan' },
+  { id: 'setting-badge',       key: 'badge' },
+  { id: 'setting-notify-high', key: 'notifyHigh' },
+  { id: 'setting-history',     key: 'storeHistory' },
 ];
 
 let currentSettings: GlowSettings = DEFAULT_SETTINGS;
 let currentHistory: GlowScanResult[] = [];
 
-// ── Load settings from background ────────────────────────────────────────────
-async function loadSettings() {
+// ── Load settings ──────────────────────────────────────────────────────────────
+async function loadSettings(): Promise<void> {
+  if (!isAlive()) return;
   try {
-    const resp = await chrome.runtime.sendMessage({ type: 'GET_SETTINGS' } satisfies GlowMessage) as GlowMessage;
+    const resp = await chrome.runtime.sendMessage(
+      { type: 'GET_SETTINGS' } satisfies GlowMessage,
+    ) as GlowMessage;
     if (resp.type === 'SETTINGS_RESPONSE') {
       currentSettings = resp.settings;
     }
-  } catch { /* use defaults */ }
+  } catch { /* background unavailable — use defaults */ }
   applySettingsToUI(currentSettings);
 }
 
-function applySettingsToUI(settings: GlowSettings) {
-  GUARD_IDS.forEach(({ id, key }) => {
+function applySettingsToUI(settings: GlowSettings): void {
+  for (const { id, key } of GUARD_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | null;
     if (el) el.checked = settings.guards[key];
-  });
-  SETTING_IDS.forEach(({ id, key }) => {
+  }
+  for (const { id, key } of SETTING_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | null;
     if (el) el.checked = settings[key] as boolean;
-  });
+  }
 }
 
-// ── Save on any toggle change ─────────────────────────────────────────────────
-function attachToggleListeners() {
-  GUARD_IDS.forEach(({ id, key }) => {
+// ── Auto-save on toggle change ─────────────────────────────────────────────────
+function attachToggleListeners(): void {
+  for (const { id, key } of GUARD_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | null;
     el?.addEventListener('change', () => {
       currentSettings = {
@@ -76,17 +88,18 @@ function attachToggleListeners() {
       };
       persistSettings();
     });
-  });
-  SETTING_IDS.forEach(({ id, key }) => {
+  }
+  for (const { id, key } of SETTING_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | null;
     el?.addEventListener('change', () => {
       currentSettings = { ...currentSettings, [key]: el.checked };
       persistSettings();
     });
-  });
+  }
 }
 
-async function persistSettings() {
+async function persistSettings(): Promise<void> {
+  if (!isAlive()) return;
   try {
     await chrome.runtime.sendMessage({
       type: 'UPDATE_SETTINGS',
@@ -96,9 +109,12 @@ async function persistSettings() {
 }
 
 // ── Load history ──────────────────────────────────────────────────────────────
-async function loadHistory() {
+async function loadHistory(): Promise<void> {
+  if (!isAlive()) return;
   try {
-    const resp = await chrome.runtime.sendMessage({ type: 'GET_HISTORY' } satisfies GlowMessage) as GlowMessage;
+    const resp = await chrome.runtime.sendMessage(
+      { type: 'GET_HISTORY' } satisfies GlowMessage,
+    ) as GlowMessage;
     if (resp.type === 'HISTORY_RESPONSE') {
       currentHistory = resp.history;
     }
@@ -106,7 +122,7 @@ async function loadHistory() {
   renderHistory(currentHistory);
 }
 
-function renderHistory(history: GlowScanResult[]) {
+function renderHistory(history: GlowScanResult[]): void {
   if (history.length === 0) {
     $scanLog.innerHTML = '<div class="empty-log">No scans recorded yet. Visit a page and run a scan.</div>';
     return;
@@ -127,31 +143,37 @@ function renderHistory(history: GlowScanResult[]) {
       <div class="log-entry">
         <span class="log-time">${time}</span>
         <span class="log-url" title="${escHtml(r.url)}">${escHtml(hostname)}</span>
-        <span class="log-threat ${cls}">${r.threatLevel}</span>
+        <span class="log-threat ${cls}" aria-label="Threat: ${r.threatLevel}">${r.threatLevel}</span>
       </div>`;
   }).join('');
 }
 
 // ── Load stats ─────────────────────────────────────────────────────────────────
-async function loadStats() {
-  const stored = await chrome.storage.local.get('glowStats');
-  const stats = stored.glowStats as { scans: number; threats: number; blocked: number; installedAt: number } | undefined;
-  if (!stats) return;
-  $statScans.textContent = String(stats.scans);
-  $statThreats.textContent = String(stats.threats);
-  $statBlocked.textContent = String(stats.blocked);
-  const days = Math.floor((Date.now() - (stats.installedAt ?? Date.now())) / 86_400_000);
-  $statDays.textContent = String(days);
+async function loadStats(): Promise<void> {
+  try {
+    const stored = await chrome.storage.local.get('glowStats');
+    const stats = stored.glowStats as {
+      scans: number; threats: number; blocked: number; installedAt: number;
+    } | undefined;
+    if (!stats) return;
+    $statScans.textContent   = String(stats.scans);
+    $statThreats.textContent = String(stats.threats);
+    $statBlocked.textContent = String(stats.blocked);
+    const days = Math.floor((Date.now() - (stats.installedAt ?? Date.now())) / 86_400_000);
+    $statDays.textContent = String(days);
+  } catch { /* storage unavailable */ }
 }
 
 // ── Export helpers ────────────────────────────────────────────────────────────
-function downloadBlob(content: string, filename: string, mime: string) {
+function downloadBlob(content: string, filename: string, mime: string): void {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
@@ -159,32 +181,37 @@ $exportBtn.addEventListener('click', () => {
   downloadBlob(
     JSON.stringify(currentHistory, null, 2),
     `glow-history-${Date.now()}.json`,
-    'application/json'
+    'application/json',
   );
 });
 
 $exportCsvBtn.addEventListener('click', () => {
   const header = 'timestamp,url,threatLevel,overallScore\n';
-  const rows = currentHistory.map(r =>
-    `${r.timestamp},"${r.url.replace(/"/g, '""')}",${r.threatLevel},${r.overallScore}`
-  ).join('\n');
+  const rows = currentHistory
+    .map(r => `${r.timestamp},"${r.url.replace(/"/g, '""')}",${r.threatLevel},${r.overallScore}`)
+    .join('\n');
   downloadBlob(header + rows, `glow-history-${Date.now()}.csv`, 'text/csv');
 });
 
 $clearHistory.addEventListener('click', async () => {
   if (!confirm('Clear all scan history? This cannot be undone.')) return;
+  if (!isAlive()) return;
   try {
     await chrome.runtime.sendMessage({ type: 'CLEAR_HISTORY' } satisfies GlowMessage);
     currentHistory = [];
     renderHistory([]);
-    $statScans.textContent = '0';
+    $statScans.textContent   = '0';
     $statThreats.textContent = '0';
-  } catch { /* bg not ready */ }
+  } catch { /* background not ready */ }
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function escHtml(s: string): string {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

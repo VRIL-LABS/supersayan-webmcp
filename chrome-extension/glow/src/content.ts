@@ -1,8 +1,11 @@
 /**
- * Glow — Content Script
- * Runs in-page context. Imports the full SuperSayanMCP defensive + detection suite,
- * activates all guards, performs detection on demand, and posts results to the
- * background service worker.
+ * Glow — Content Script (document_idle)
+ *
+ * Orphan detection on every chrome.runtime call (err-context-invalidation).
+ * Settings sync via chrome.storage.onChanged instead of push messages —
+ * eliminates the broadcast-to-all-tabs antipattern in the background SW.
+ * Guard teardown/re-activation on settings change.
+ * All chrome.runtime.sendMessage calls are wrapped in isAlive() checks.
  */
 
 import { runFullDetection, collectFingerprint } from '@supersayan/detection-engine';
@@ -10,118 +13,139 @@ import {
   activateMSTIShield,
   scanForAIAgents,
   activateGPUCacheGuard,
+  activateGPUPrivacyGuard,
   protectWebRTCLeaks,
   verifyToolIntegrity,
   activateSessionGuard,
   activateElicitationGuard,
   activateAbortExecutionGuard,
   activateDeclarativeFormGuard,
-  activateGPUPrivacyGuard,
-  activateQUICReplayGuard,
   activateCSSKeyGuard,
+  activateQUICReplayGuard,
   activateSupplyChainGuard,
 } from '@supersayan/defensive-shield';
 import type { GlowMessage, GlowScanResult, GlowSettings, GlowShieldStatus } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
-// ── Guard lifecycle handles ────────────────────────────────────────────────────
+// ── Orphan detection ──────────────────────────────────────────────────────────
+// After an extension update, chrome.runtime.id becomes undefined in the old
+// content script instance. Guard every chrome.runtime call with this check.
+function isAlive(): boolean {
+  try {
+    return !!chrome.runtime?.id;
+  } catch {
+    return false;
+  }
+}
 
+// ── Guard lifecycle handles ────────────────────────────────────────────────────
 let cleanupFns: Array<() => void> = [];
 let activeSettings: GlowSettings = DEFAULT_SETTINGS;
 
-function teardownGuards() {
-  cleanupFns.forEach(fn => { try { fn(); } catch { /* ignore */ } });
+function teardownGuards(): void {
+  for (const fn of cleanupFns) {
+    try { fn(); } catch { /* ignore errors during teardown */ }
+  }
   cleanupFns = [];
 }
 
-function activateGuards(settings: GlowSettings['guards']) {
+function activateGuards(guards: GlowSettings['guards']): void {
   teardownGuards();
 
-  if (settings.msti) {
+  if (guards.msti) {
     const r = activateMSTIShield();
-    if (typeof r.cleanup === 'function') cleanupFns.push(r.cleanup);
+    const c = (r as { cleanup?: () => void }).cleanup;
+    if (typeof c === 'function') cleanupFns.push(c);
   }
-  if (settings.gpu) {
+  if (guards.gpu) {
     const r = activateGPUCacheGuard();
-    if (typeof (r as { cleanup?: () => void }).cleanup === 'function') {
-      cleanupFns.push((r as { cleanup: () => void }).cleanup);
-    }
+    const c = (r as { cleanup?: () => void }).cleanup;
+    if (typeof c === 'function') cleanupFns.push(c);
     activateGPUPrivacyGuard();
   }
-  if (settings.webrtc) {
+  if (guards.webrtc) {
     protectWebRTCLeaks();
   }
-  if (settings.session) {
+  if (guards.session) {
     const r = activateSessionGuard();
-    if (typeof (r as { cleanup?: () => void }).cleanup === 'function') {
-      cleanupFns.push((r as { cleanup: () => void }).cleanup);
-    }
+    const c = (r as { cleanup?: () => void }).cleanup;
+    if (typeof c === 'function') cleanupFns.push(c);
   }
-  if (settings.elicitation) {
+  if (guards.elicitation) {
     activateElicitationGuard();
   }
-  if (settings.abortExecution) {
+  if (guards.abortExecution) {
     activateAbortExecutionGuard();
   }
-  if (settings.declForm) {
+  if (guards.declForm) {
     activateDeclarativeFormGuard();
   }
-  if (settings.quicReplay) {
+  if (guards.quicReplay) {
     activateQUICReplayGuard();
   }
-  if (settings.cssKey) {
+  if (guards.cssKey) {
     activateCSSKeyGuard();
   }
-  if (settings.supplyChain) {
+  if (guards.supplyChain) {
     activateSupplyChainGuard();
   }
 }
 
-// ── Build a GlowShieldStatus from enabled settings ───────────────────────────
+// ── Settings sync via chrome.storage.onChanged ────────────────────────────────
+// Reacts to settings saved by the background/options page without requiring
+// a push message broadcast to every tab.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes.glowSettings) return;
+  const newSettings = changes.glowSettings.newValue as GlowSettings | undefined;
+  if (!newSettings) return;
+  const prevGuards = activeSettings.guards;
+  activeSettings = newSettings;
+  // Re-activate guards if guard config changed
+  const guardsChanged = JSON.stringify(prevGuards) !== JSON.stringify(newSettings.guards);
+  if (guardsChanged) {
+    activateGuards(activeSettings.guards);
+  }
+});
 
-function buildShieldStatus(settings: GlowSettings['guards']): GlowShieldStatus {
-  const g = (enabled: boolean) => (enabled ? 'active' : 'inactive') as const;
+// ── Build GlowShieldStatus ────────────────────────────────────────────────────
+function buildShieldStatus(guards: GlowSettings['guards']): GlowShieldStatus {
+  const g = (enabled: boolean): 'active' | 'inactive' => (enabled ? 'active' : 'inactive');
   return {
-    msti: g(settings.msti),
-    aiAgent: g(settings.aiAgent),
-    webrtc: g(settings.webrtc),
-    toolIntegrity: g(settings.toolIntegrity),
-    session: g(settings.session),
-    gpu: g(settings.gpu),
-    elicitation: g(settings.elicitation),
-    supplyChain: g(settings.supplyChain),
-    quicReplay: g(settings.quicReplay),
-    cssKey: g(settings.cssKey),
-    abortExecution: g(settings.abortExecution),
-    declForm: g(settings.declForm),
+    msti:          g(guards.msti),
+    aiAgent:       g(guards.aiAgent),
+    webrtc:        g(guards.webrtc),
+    toolIntegrity: g(guards.toolIntegrity),
+    session:       g(guards.session),
+    gpu:           g(guards.gpu),
+    elicitation:   g(guards.elicitation),
+    supplyChain:   g(guards.supplyChain),
+    quicReplay:    g(guards.quicReplay),
+    cssKey:        g(guards.cssKey),
+    abortExecution: g(guards.abortExecution),
+    declForm:      g(guards.declForm),
   };
 }
 
-// ── Run full detection + optional ai-agent radar ──────────────────────────────
-
+// ── Run full detection ─────────────────────────────────────────────────────────
 async function runScan(): Promise<GlowScanResult> {
   const detectionResult = runFullDetection();
   const fp = collectFingerprint();
 
-  // AI Agent radar (runs fresh each scan)
   let aiAgentAlerts = 0;
   if (activeSettings.guards.aiAgent) {
     const agentRadar = scanForAIAgents();
     aiAgentAlerts = agentRadar.detections.length;
   }
 
-  // Tool integrity
   let toolIntegrityOk = true;
   if (activeSettings.guards.toolIntegrity) {
     const ti = verifyToolIntegrity();
     toolIntegrityOk = ti.passed;
   }
 
-  const shieldStatus = buildShieldStatus(activeSettings.guards);
-
-  // Escalate threat if ai agent or tool integrity fires
   let threatLevel = detectionResult.threatLevel;
   let overallScore = detectionResult.overallScore;
+
   if (aiAgentAlerts > 0) {
     overallScore = Math.min(100, overallScore + aiAgentAlerts * 12);
     if (overallScore >= 75) threatLevel = 'HIGH';
@@ -132,8 +156,10 @@ async function runScan(): Promise<GlowScanResult> {
     if (overallScore >= 75) threatLevel = 'HIGH';
   }
 
+  const shieldStatus = buildShieldStatus(activeSettings.guards);
+
   const result: GlowScanResult = {
-    tabId: -1, // filled in by background
+    tabId: -1, // filled in by background on receipt
     url: window.location.href,
     timestamp: Date.now(),
     threatLevel,
@@ -148,18 +174,18 @@ async function runScan(): Promise<GlowScanResult> {
     })),
     shieldStatus: {
       ...shieldStatus,
-      aiAgent: aiAgentAlerts > 0 ? 'alert' : shieldStatus.aiAgent,
-      toolIntegrity: !toolIntegrityOk ? 'alert' : shieldStatus.toolIntegrity,
+      aiAgent:       aiAgentAlerts > 0    ? 'alert' : shieldStatus.aiAgent,
+      toolIntegrity: !toolIntegrityOk     ? 'alert' : shieldStatus.toolIntegrity,
     },
     fingerprint: {
-      userAgent: fp.userAgent,
-      platform: fp.platform,
+      userAgent:           fp.userAgent,
+      platform:            fp.platform,
       hardwareConcurrency: fp.hardwareConcurrency,
-      language: fp.language,
-      webglRenderer: fp.webglRenderer,
-      webglVendor: fp.webglVendor,
-      isHeadless: fp.userAgent.toLowerCase().includes('headless'),
-      hasWebGL: !!fp.webglRenderer,
+      language:            fp.language,
+      webglRenderer:       fp.webglRenderer,
+      webglVendor:         fp.webglVendor,
+      isHeadless:          fp.userAgent.toLowerCase().includes('headless'),
+      hasWebGL:            !!fp.webglRenderer,
     },
     recommendations: detectionResult.recommendations,
   };
@@ -168,38 +194,34 @@ async function runScan(): Promise<GlowScanResult> {
 }
 
 // ── Message handler ───────────────────────────────────────────────────────────
-
-chrome.runtime.onMessage.addListener(
-  (message: GlowMessage, _sender, sendResponse) => {
-    if (message.type === 'SCAN_REQUEST') {
-      runScan().then(result => {
-        const msg: GlowMessage = { type: 'SCAN_RESULT', result };
-        chrome.runtime.sendMessage(msg).catch(() => { /* popup may be closed */ });
-        sendResponse({ ok: true });
-      }).catch(err => {
-        sendResponse({ ok: false, error: String(err) });
-      });
-      return true; // keep channel open for async
-    }
-
-    if (message.type === 'UPDATE_SETTINGS') {
-      const incoming = (message as { type: 'UPDATE_SETTINGS'; settings: Partial<GlowSettings> }).settings;
-      activeSettings = { ...activeSettings, ...incoming };
-      if (incoming.guards) {
-        activateGuards(activeSettings.guards);
-      }
-      sendResponse({ ok: true });
-      return false;
-    }
-
+chrome.runtime.onMessage.addListener((message: GlowMessage, _sender, sendResponse) => {
+  if (!isAlive()) {
+    sendResponse({ ok: false, error: 'Extension context invalidated — please reload' });
     return false;
   }
-);
+
+  if (message.type === 'SCAN_REQUEST') {
+    runScan()
+      .then(result => {
+        if (!isAlive()) return;
+        chrome.runtime.sendMessage({ type: 'SCAN_RESULT', result } satisfies GlowMessage)
+          .catch(() => { /* background or popup may be closed */ });
+        sendResponse({ ok: true });
+      })
+      .catch((err: unknown) => {
+        sendResponse({ ok: false, error: String(err) });
+      });
+    return true; // keep channel open for async
+  }
+
+  return false;
+});
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
+async function bootstrap(): Promise<void> {
+  if (!isAlive()) return;
 
-async function bootstrap() {
-  // Load persisted settings
+  // Load persisted settings from local storage
   try {
     const stored = await chrome.storage.local.get('glowSettings');
     if (stored.glowSettings) {
@@ -211,12 +233,14 @@ async function bootstrap() {
   activateGuards(activeSettings.guards);
 
   // Auto-scan if enabled
-  if (activeSettings.autoScan) {
-    const result = await runScan();
-    const msg: GlowMessage = { type: 'SCAN_RESULT', result };
+  if (activeSettings.autoScan && isAlive()) {
     try {
-      chrome.runtime.sendMessage(msg);
-    } catch { /* background may not be ready yet */ }
+      const result = await runScan();
+      if (isAlive()) {
+        chrome.runtime.sendMessage({ type: 'SCAN_RESULT', result } satisfies GlowMessage)
+          .catch(() => { /* background may not be ready */ });
+      }
+    } catch { /* scan failed — non-fatal */ }
   }
 }
 
