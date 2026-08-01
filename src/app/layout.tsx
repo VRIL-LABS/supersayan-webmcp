@@ -30,8 +30,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "SuperSayanMCP" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    // Modern browsers: scalable SVG with dark/light media query
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    // Apple devices (home screen shortcut, 180×180 with padded solid bg)
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "SuperSayanMCP — WebMCP Security Intelligence",
     description: "Detect. Defend. Trace. The complete countermeasure suite for the agentic web.",
