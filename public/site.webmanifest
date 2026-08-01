@@ -1,7 +1,7 @@
 {
-  "name": "SuperSayanMCP",
-  "short_name": "SuperSayanMCP",
-  "description": "Next-generation WebMCP Security Intelligence Platform",
+  "name": "Supersayan WebMCP Security",
+  "short_name": "Supersayan",
+  "description": "Next-generation WebMCP Security Intelligence Platform. Detect headless browsers, AI agent fingerprints, and covert channel exfiltration vectors.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1C1F2E",

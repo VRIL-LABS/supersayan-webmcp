@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glow — WebMCP Security</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1C1F2E;
+      --bg2: #1E2840;
+      --bg3: #1a2236;
+      --teal: #00FFC8;
+      --blue: #0A84FF;
+      --indigo: #6E3DDB;
+      --cerulean: #00B4D8;
+      --arctic: #B8F5FF;
+      --ghost: #E8EEFF;
+      --muted: #7a8ba0;
+      --border: rgba(0,180,216,0.18);
+      --glow-teal: 0 0 18px rgba(0,255,200,0.35);
+      --glow-blue: 0 0 18px rgba(10,132,255,0.35);
+      --radius: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--ghost);
+      width: 380px;
+      min-height: 520px;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #1C1F2E 0%, #1a2236 100%);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: var(--glow-teal);
+    }
+    .logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.02em;
+    }
+    .logo-sub {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 5px 7px;
+      font-size: 13px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .icon-btn:hover { color: var(--teal); border-color: var(--teal); }
+
+    /* Threat level banner */
+    .threat-banner {
+      margin: 12px 12px 0;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      transition: all 0.3s;
+    }
+    .threat-banner.safe { border-color: rgba(0,255,200,0.3); background: rgba(0,255,200,0.06); }
+    .threat-banner.low { border-color: rgba(0,180,216,0.3); background: rgba(0,180,216,0.06); }
+    .threat-banner.medium { border-color: rgba(255,190,0,0.3); background: rgba(255,190,0,0.06); }
+    .threat-banner.high { border-color: rgba(255,100,60,0.3); background: rgba(255,100,60,0.06); }
+    .threat-banner.critical { border-color: rgba(220,50,50,0.4); background: rgba(220,50,50,0.08); }
+    .threat-indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      border: 2px solid currentColor;
+    }
+    .threat-banner.safe .threat-indicator { color: var(--teal); box-shadow: 0 0 12px rgba(0,255,200,0.4); }
+    .threat-banner.low .threat-indicator { color: var(--cerulean); }
+    .threat-banner.medium .threat-indicator { color: #FFC107; }
+    .threat-banner.high .threat-indicator { color: #FF6B3D; }
+    .threat-banner.critical .threat-indicator { color: #FF3B3B; box-shadow: 0 0 12px rgba(255,50,50,0.4); }
+    .threat-info { flex: 1; }
+    .threat-level-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .threat-banner.safe .threat-level-label { color: var(--teal); }
+    .threat-banner.low .threat-level-label { color: var(--cerulean); }
+    .threat-banner.medium .threat-level-label { color: #FFC107; }
+    .threat-banner.high .threat-level-label { color: #FF6B3D; }
+    .threat-banner.critical .threat-level-label { color: #FF3B3B; }
+    .threat-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .threat-score {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ghost);
+      min-width: 44px;
+      text-align: right;
+    }
+    .threat-score span {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* Scan button */
+    .scan-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: calc(100% - 24px);
+      margin: 10px 12px 0;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      color: #0A0E1A;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      text-transform: uppercase;
+    }
+    .scan-btn:hover { opacity: 0.92; }
+    .scan-btn:active { transform: scale(0.98); }
+    .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .scan-btn.scanning {
+      background: linear-gradient(90deg, var(--indigo), var(--blue));
+      animation: pulse-btn 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse-btn { 0%,100% { opacity: 1; } 50% { opacity: 0.75; } }
+
+    /* Shield grid */
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 12px 14px 6px;
+    }
+    .shield-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 0 12px;
+    }
+    .shield-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+    .shield-item:hover { border-color: rgba(0,255,200,0.25); }
+    .shield-item.active { border-color: rgba(0,255,200,0.3); }
+    .shield-item.inactive { opacity: 0.55; }
+    .shield-item.alert { border-color: rgba(255,100,60,0.35); }
+    .shield-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .shield-item.active .shield-dot { background: var(--teal); box-shadow: 0 0 6px rgba(0,255,200,0.6); }
+    .shield-item.inactive .shield-dot { background: var(--muted); }
+    .shield-item.alert .shield-dot { background: #FF6B3D; box-shadow: 0 0 6px rgba(255,107,61,0.6); }
+    .shield-label {
+      font-size: 11px;
+      color: var(--ghost);
+      line-height: 1.3;
+      flex: 1;
+    }
+    .shield-label small {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Signals list */
+    .signals-list {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 148px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .signal-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 11px;
+      transition: border-color 0.15s;
+    }
+    .signal-row:hover { border-color: rgba(0,180,216,0.3); }
+    .signal-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+    .signal-name {
+      flex: 1;
+      color: var(--ghost);
+      font-weight: 500;
+    }
+    .signal-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .signal-badge.pass { background: rgba(0,255,200,0.12); color: var(--teal); }
+    .signal-badge.fail { background: rgba(255,100,60,0.12); color: #FF6B3D; }
+    .signal-badge.warn { background: rgba(255,193,7,0.12); color: #FFC107; }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-time {
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .footer-links {
+      display: flex;
+      gap: 10px;
+    }
+    .footer-link {
+      font-size: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: var(--teal); }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg3) 25%, var(--bg2) 50%, var(--bg3) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* URL bar */
+    .url-bar {
+      margin: 8px 12px 0;
+      padding: 7px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .url-bar span { color: var(--cerulean); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">&#9673;</div>
+      <div>
+        <div class="logo-text">Glow</div>
+        <div class="logo-sub">WebMCP Shield</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="refreshBtn" title="Refresh scan">&#8635;</button>
+      <button class="icon-btn" id="settingsBtn" title="Settings">&#9881;</button>
+    </div>
+  </div>
+
+  <div class="url-bar" id="urlBar"><span>—</span></div>
+
+  <div class="threat-banner safe" id="threatBanner">
+    <div class="threat-indicator" id="threatIndicator">&#10003;</div>
+    <div class="threat-info">
+      <div class="threat-level-label" id="threatLabel">SAFE</div>
+      <div class="threat-desc" id="threatDesc">No threats detected on this page</div>
+    </div>
+    <div class="threat-score" id="threatScore">0<span>/100</span></div>
+  </div>
+
+  <button class="scan-btn" id="scanBtn">
+    <span id="scanBtnText">&#9656; Run Full Scan</span>
+  </button>
+
+  <div class="section-title">Active Defenses</div>
+  <div class="shield-grid" id="shieldGrid">
+    <div class="shield-item active" data-guard="msti">
+      <div class="shield-dot"></div>
+      <div class="shield-label">MSTI Shield<small>Tool injection monitor</small></div>
+    </div>
+    <div class="shield-item active" data-guard="ai-agent">
+      <div class="shield-dot"></div>
+      <div class="shield-label">AI Agent Radar<small>Headless/AI detection</small></div>
+    </div>
+    <div class="shield-item active" data-guard="webrtc">
+      <div class="shield-dot"></div>
+      <div class="shield-label">WebRTC Guard<small>IP leak prevention</small></div>
+    </div>
+    <div class="shield-item active" data-guard="tool-integrity">
+      <div class="shield-dot"></div>
+      <div class="shield-label">Tool Integrity<small>MCP tool verification</small></div>
+    </div>
+    <div class="shield-item active" data-guard="session">
+      <div class="shield-dot"></div>
+      <div class="shield-label">Session Guard<small>AI session monitor</small></div>
+    </div>
+    <div class="shield-item active" data-guard="gpu">
+      <div class="shield-dot"></div>
+      <div class="shield-label">GPU Guard<small>Cache timing defense</small></div>
+    </div>
+    <div class="shield-item active" data-guard="elicitation">
+      <div class="shield-dot"></div>
+      <div class="shield-label">Elicitation Guard<small>Prompt injection block</small></div>
+    </div>
+    <div class="shield-item active" data-guard="supply-chain">
+      <div class="shield-dot"></div>
+      <div class="shield-label">Supply Chain<small>MCP package integrity</small></div>
+    </div>
+  </div>
+
+  <div class="section-title" id="signalsTitle" style="display:none">Detection Signals</div>
+  <div class="signals-list" id="signalsList"></div>
+
+  <div class="footer">
+    <div class="footer-time" id="scanTime">Not yet scanned</div>
+    <div class="footer-links">
+      <button class="footer-link" id="exportBtn">Export</button>
+      <button class="footer-link" id="optionsLink">Full Report</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
