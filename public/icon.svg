@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <style>
+    .shield-bg   { fill: #1C1F2E; }
+    .shield-glow { fill: #00FFC8; opacity: 0.08; }
+    .bolt        { fill: #00FFC8; }
+    .ring        { fill: none; stroke: #00FFC8; stroke-width: 6; opacity: 0.45; }
+    @media (prefers-color-scheme: light) {
+      .shield-bg   { fill: #0D0F1A; }
+      .shield-glow { fill: #00FFC8; opacity: 0.12; }
+      .bolt        { fill: #00FFC8; }
+      .ring        { stroke: #00FFC8; opacity: 0.5; }
+    }
+  </style>
+
+  <!-- Shield shape: classic heraldic shield pointing down -->
+  <!-- Outer shield -->
+  <path class="shield-bg" d="
+    M 256 28
+    L 484 108
+    L 484 280
+    C 484 380 380 460 256 492
+    C 132 460 28 380 28 280
+    L 28 108
+    Z
+  "/>
+
+  <!-- Subtle inner glow ring (inset shield outline) -->
+  <path class="ring" d="
+    M 256 58
+    L 454 128
+    L 454 278
+    C 454 364 362 436 256 464
+    C 150 436 58 364 58 278
+    L 58 128
+    Z
+  "/>
+
+  <!-- VRIL lightning bolt "V" mark — scaled + centered in the shield -->
+  <!-- The original mark is a complex angular V/lightning composite.
+       Redrawn clean at 512×512, centered roughly 256,256, occupying ~280×280 px -->
+  <!--
+    The VRIL symbol reads as:
+    - A large outer angular V sweep (the wings)
+    - A central downward lightning bolt
+    We reconstruct it as clean paths matching the brand geometry.
+  -->
+
+  <!-- Left wing sweep -->
+  <path class="bolt" d="
+    M 142 148
+    L 214 148
+    L 256 248
+    L 214 208
+    L 182 278
+    Z
+  "/>
+
+  <!-- Right wing sweep -->
+  <path class="bolt" d="
+    M 370 148
+    L 298 148
+    L 256 248
+    L 298 208
+    L 330 278
+    Z
+  "/>
+
+  <!-- Central lightning bolt descending -->
+  <path class="bolt" d="
+    M 256 248
+    L 228 296
+    L 248 296
+    L 222 380
+    L 284 300
+    L 264 300
+    Z
+  "/>
+</svg>
