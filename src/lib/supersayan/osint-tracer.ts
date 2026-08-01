@@ -137,13 +137,14 @@ export function collectTLSIndicators(): TLSFingerprint {
     (navigator as unknown as Record<string, unknown>).deviceMemory || 0,
     new Date().getTimezoneOffset(),
   ];
-  const ja3Sim = components.reduce((hash, val) => {
+  const ja3Sim = components.reduce<number>((hash, val) => {
     const str = String(val);
+    let h = hash;
     for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash |= 0;
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
     }
-    return hash;
+    return h;
   }, 0);
 
   return {

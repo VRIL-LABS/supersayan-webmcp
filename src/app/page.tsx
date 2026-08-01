@@ -89,23 +89,25 @@ import {
 /*  Animation variants                                               */
 /* ────────────────────────────────────────────────────────────────── */
 
-const fadeInUp = {
+import type { Variants } from 'framer-motion';
+
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.0, 0.0, 0.2, 1] },
   }),
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
 };
 
-const fadeInScale = {
+const fadeInScale: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: [0.0, 0.0, 0.2, 1] } },
 };
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -222,36 +224,51 @@ function ThreatGauge({ score, level }: { score: number; level: ThreatLevel }) {
 /*  1. HERO SECTION                                                  */
 /* ────────────────────────────────────────────────────────────────── */
 
+function MatrixColumns() {
+  const [columns, setColumns] = useState<string[]>([]);
+  useEffect(() => {
+    setColumns(
+      Array.from({ length: 8 }).map(() =>
+        Array.from({ length: 20 })
+          .map(() => String.fromCharCode(0x30a0 + Math.random() * 96))
+          .join(' ')
+      )
+    );
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20" aria-hidden="true">
+      {columns.map((text, i) => (
+        <div
+          key={i}
+          className="matrix-column"
+          style={{
+            left: `${10 + i * 12}%`,
+            animationDuration: `${8 + i * 2}s`,
+            animationDelay: `${i * 0.5}s`,
+          }}
+        >
+          {text}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-16 pb-20 md:pt-28 md:pb-32">
-      {/* Animated background */}
-      <div className="absolute inset-0 grid-bg pointer-events-none" />
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <header className="relative w-full overflow-hidden bg-background pt-16 pb-20 md:pt-28 md:pb-32">
+      {/* Grid overlay */}
+      <div className="absolute inset-0 grid-bg pointer-events-none" aria-hidden="true" />
+      {/* Ambient glow blobs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-sayan-emerald/8 rounded-full blur-[120px]" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-sayan-cyan/6 rounded-full blur-[120px]" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sayan-emerald/4 rounded-full blur-[150px]" />
       </div>
 
-      {/* Matrix columns — each column uses Math.random() so suppressHydrationWarning on each */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className="matrix-column"
-            suppressHydrationWarning
-            style={{
-              left: `${10 + i * 12}%`,
-              animationDuration: `${8 + i * 2}s`,
-              animationDelay: `${i * 0.5}s`,
-            }}
-          >
-            {Array.from({ length: 20 })
-              .map(() => String.fromCharCode(0x30a0 + Math.random() * 96))
-              .join(' ')}
-          </div>
-        ))}
-      </div>
+      {/* Matrix rain — client-only to avoid hydration mismatch */}
+      <MatrixColumns />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
         <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
@@ -309,7 +326,7 @@ function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-    </section>
+    </header>
   );
 }
 
@@ -1620,22 +1637,24 @@ function Footer() {
 
 export default function SuperSayanMCPPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#050507] grid-bg">
+    <div className="min-h-screen flex flex-col bg-background grid-bg">
       <HeroSection />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <DetectionDashboard />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <OSINTTracer />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <MCPcveDatabase />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <ThreatIntel />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <GuestAnalysis />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <SuperSayanFeatures />
-      <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
-      <ChromeExtensionConcept />
+      <main>
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <DetectionDashboard />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <OSINTTracer />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <MCPcveDatabase />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <ThreatIntel />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <GuestAnalysis />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <SuperSayanFeatures />
+        <Separator className="bg-border-custom max-w-6xl mx-auto w-full" />
+        <ChromeExtensionConcept />
+      </main>
       <Footer />
     </div>
   );
