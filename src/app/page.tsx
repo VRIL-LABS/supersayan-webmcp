@@ -269,6 +269,17 @@ function HeroSection() {
       {/* Matrix rain — client-only to avoid hydration mismatch */}
       <MatrixColumns />
 
+      {/* VRIL LABS top nav bar */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4 border-b border-sayan-emerald/10">
+        <a href="https://vril.li" target="_blank" rel="noopener noreferrer" aria-label="VRIL LABS">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/vril-labs-logo.svg" alt="VRIL LABS" className="h-7 w-auto opacity-85 hover:opacity-100 transition-opacity" />
+        </a>
+        <Badge variant="outline" className="border-sayan-emerald/30 text-sayan-emerald bg-sayan-emerald/5 text-xs py-0.5">
+          v2026
+        </Badge>
+      </div>
+
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
         <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
           <motion.div variants={fadeInUp} custom={0}>
@@ -1577,40 +1588,66 @@ function ChromeExtensionConcept() {
 function Footer() {
   return (
     <footer className="border-t border-border-custom bg-surface/50 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left">
-            <h3 className="text-lg font-bold animate-gradient-sayan inline-block">
-              SuperSayanMCP
-            </h3>
-            <p className="text-sm text-text-dim mt-1">
-              WebMCP Security Intelligence
-            </p>
-            <p className="text-xs text-text-dim mt-2 max-w-md">
-              Built for the agentic web. Defend against digital drones.
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-6">
+        {/* Top row */}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-8">
+          {/* Brand block */}
+          <div className="flex flex-col gap-3">
+            <a href="https://vril.li" target="_blank" rel="noopener noreferrer" aria-label="VRIL LABS">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/vril-labs-logo.svg" alt="VRIL LABS" className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity" />
+            </a>
+            <p className="text-sm font-semibold animate-gradient-sayan inline-block">SuperSayanMCP</p>
+            <p className="text-xs text-text-dim max-w-xs leading-relaxed">
+              Next-generation WebMCP security intelligence. Built for the agentic web.
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
-            <a
-              href="https://github.com/VRIL-LABS/supersayan-webmcp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-            </a>
+          {/* Link columns */}
+          <div className="flex flex-wrap gap-x-12 gap-y-4">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-text uppercase tracking-widest mb-1">Resources</p>
+              <a
+                href="https://github.com/VRIL-LABS/supersayan-webmcp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5"
+              >
+                <Github className="h-3.5 w-3.5" />
+                GitHub
+              </a>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-text uppercase tracking-widest mb-1">Legal</p>
+              <a href="/privacy" className="text-xs text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5">
+                <Scale className="h-3.5 w-3.5" />
+                Privacy Policy
+              </a>
+              <a href="/terms" className="text-xs text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5">
+                <FileWarning className="h-3.5 w-3.5" />
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
+
         <Separator className="bg-border-custom my-6" />
+
+        {/* Bottom row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-text-dim">
-            &copy; 2026 SuperSayanMCP. MIT License.
+            &copy; {new Date().getFullYear()} VLABS, LLC. All rights reserved.
           </p>
-          <p className="text-xs text-text-dim flex items-center gap-1">
-            <Scale className="h-3 w-3" />
-            Open source security research
+          <p className="text-xs text-text-dim">
+            Designed with &lt;3 by{' '}
+            <a
+              href="https://vril.li"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sayan-emerald hover:text-sayan-cyan transition-colors underline underline-offset-2"
+            >
+              VRIL LABS
+            </a>
           </p>
         </div>
       </div>
