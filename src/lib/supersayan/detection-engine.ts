@@ -370,7 +370,7 @@ function checkCDPIndicators(): DetectionSignal {
       description: 'Detect Chrome DevTools Protocol or Puppeteer runtime artifacts',
       weight: 20,
       passed: !suspicious,
-      value: { cdp: hasCDP, puppeteer: hasPuppeteer },
+      value: `cdp:${hasCDP} puppeteer:${hasPuppeteer}`,
       details: suspicious ? '⚠️ CDP or Puppeteer artifacts detected!' : '✓ No CDP/Puppeteer artifacts found',
     };
   } catch {
