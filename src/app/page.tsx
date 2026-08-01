@@ -221,30 +221,41 @@ function ThreatGauge({ score, level }: { score: number; level: ThreatLevel }) {
 /* ────────────────────────────────────────────────────────────────── */
 
 function MatrixColumns() {
-  const [columns, setColumns] = useState<string[]>([]);
+  const [columns, setColumns] = useState<{ text: string; opacity: number }[]>([]);
   useEffect(() => {
     setColumns(
-      Array.from({ length: 8 }).map(() =>
-        Array.from({ length: 20 })
+      Array.from({ length: 14 }).map(() => ({
+        text: Array.from({ length: 28 })
           .map(() => String.fromCharCode(0x30a0 + Math.random() * 96))
-          .join(' ')
-      )
+          .join(' '),
+        opacity: 0.15 + Math.random() * 0.2,
+      }))
     );
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20" aria-hidden="true">
-      {columns.map((text, i) => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {columns.map((col, i) => (
+        /* outer div pins position + base opacity; inner div runs the animation */
         <div
           key={i}
-          className="matrix-column"
           style={{
-            left: `${10 + i * 12}%`,
-            animationDuration: `${8 + i * 2}s`,
-            animationDelay: `${i * 0.5}s`,
+            position: 'absolute',
+            top: 0,
+            left: `${3 + i * 6.8}%`,
+            opacity: col.opacity,
           }}
         >
-          {text}
+          <div
+            className="matrix-column"
+            style={{
+              position: 'relative',
+              animationDuration: `${9 + i * 1.5}s`,
+              animationDelay: `${-i * 0.7}s`,
+            }}
+          >
+            {col.text}
+          </div>
         </div>
       ))}
     </div>
