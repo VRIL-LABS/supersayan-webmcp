@@ -35,7 +35,6 @@ import {
   FileWarning,
   ExternalLink,
   Github,
-  BookOpen,
   Scale,
   MousePointer2,
   Framer,
@@ -1594,25 +1593,13 @@ function Footer() {
 
           <div className="flex items-center gap-6">
             <a
-              href="#"
+              href="https://github.com/VRIL-LABS/supersayan-webmcp"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5"
             >
               <Github className="h-4 w-4" />
               GitHub
-            </a>
-            <a
-              href="#"
-              className="text-sm text-text-dim hover:text-sayan-emerald transition-colors flex items-center gap-1.5"
-            >
-              <BookOpen className="h-4 w-4" />
-              Documentation
-            </a>
-            <a
-              href="#"
-              className="text-sm text-text-dim hover:text-sayan-amber transition-colors flex items-center gap-1.5"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              Security Advisory
             </a>
           </div>
         </div>
