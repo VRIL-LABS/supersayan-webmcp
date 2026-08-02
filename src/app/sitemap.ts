@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://supersayan.vril.li";
+const SITE_URL = "https://webmcp.vril.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://supersayan.vril.li";
+const SITE_URL = "https://webmcp.vril.dev";
 const SITE_TITLE = "Supersayan WebMCP Security";
 const SITE_DESCRIPTION =
   "Next-generation WebMCP security intelligence platform. Detect headless browsers, AI agent fingerprints, WebMCP tool injection, and covert channel exfiltration vectors.";
