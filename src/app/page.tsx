@@ -971,45 +971,67 @@ function MCPcveDatabase() {
           </div>
 
           {/* ── Desktop table (md+) ── */}
+          {/*
+            table-fixed is required: with table-auto the browser ignores max-w on <td> per CSS spec.
+            TableCell base has `whitespace-nowrap` so we must override with `whitespace-normal`
+            on every cell that needs to wrap. overflow-hidden clips any remaining overflow.
+          */}
           <div className="hidden md:block rounded-xl border border-border-custom overflow-hidden bg-surface/50">
             <div className="overflow-x-auto">
-              <Table className="table-auto w-full min-w-[860px]">
+              <Table className="table-fixed w-full min-w-[960px]">
+                <colgroup>
+                  <col style={{ width: '13%' }} />  {/* CVE ID */}
+                  <col style={{ width: '8%' }} />   {/* Severity */}
+                  <col style={{ width: '14%' }} />  {/* Component */}
+                  <col style={{ width: '27%' }} />  {/* Description */}
+                  <col style={{ width: '13%' }} />  {/* Status */}
+                  <col style={{ width: '25%' }} />  {/* Digital Drone Relevance */}
+                </colgroup>
                 <TableHeader>
                   <TableRow className="border-border-custom hover:bg-transparent">
-                    <TableHead className="text-text-dim font-semibold text-xs w-[130px] whitespace-nowrap">CVE ID</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[90px] whitespace-nowrap">Severity</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[120px] whitespace-nowrap">Component</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs min-w-[200px] max-w-[260px]">Description</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[140px] whitespace-nowrap">Status</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs min-w-[180px]">Digital Drone Relevance</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs">CVE ID</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs">Severity</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs whitespace-normal">Component</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs whitespace-normal">Description</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs">Status</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs whitespace-normal">Digital Drone Relevance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sorted.map((cve) => (
                     <TableRow key={cve.id} className="border-border-custom/50 hover:bg-surface-hover/30 align-top">
-                      <TableCell className="font-mono text-xs text-sayan-cyan whitespace-nowrap py-3">
+                      {/* CVE ID — mono, nowrap is fine, it's a fixed short string */}
+                      <TableCell className="font-mono text-xs text-sayan-cyan py-3 align-top">
                         {cve.nistUrl ? (
                           <a
                             href={cve.nistUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-sayan-teal underline underline-offset-2 decoration-sayan-cyan/40 hover:decoration-sayan-teal transition-colors"
+                            className="hover:text-sayan-teal underline underline-offset-2 decoration-sayan-cyan/40 hover:decoration-sayan-teal transition-colors break-all"
                           >
                             {cve.id}
                           </a>
                         ) : (
-                          cve.id
+                          <span className="break-all">{cve.id}</span>
                         )}
                       </TableCell>
-                      <TableCell className="py-3">
+                      {/* Severity badge */}
+                      <TableCell className="py-3 align-top">
                         <SeverityBadge severity={cve.severity} />
                       </TableCell>
-                      <TableCell className="text-xs text-text py-3 break-words">{cve.component}</TableCell>
-                      <TableCell className="text-xs text-text-dim py-3 leading-relaxed break-words max-w-[260px]">{cve.description}</TableCell>
-                      <TableCell className="py-3">
+                      {/* Component — allow wrap */}
+                      <TableCell className="text-xs text-text py-3 align-top whitespace-normal overflow-hidden">
+                        {cve.component}
+                      </TableCell>
+                      {/* Description — the problematic column; whitespace-normal + overflow-hidden are critical */}
+                      <TableCell className="text-xs text-text-dim py-3 align-top whitespace-normal overflow-hidden leading-relaxed">
+                        {cve.description}
+                      </TableCell>
+                      {/* Status badge */}
+                      <TableCell className="py-3 align-top">
                         <Badge
                           variant="outline"
-                          className={`text-[10px] whitespace-nowrap ${
+                          className={`text-[10px] whitespace-normal break-words inline-flex ${
                             cve.status.includes('Patched')
                               ? 'text-sayan-emerald border-sayan-emerald/30 bg-sayan-emerald/10'
                               : cve.status.includes('Active')
@@ -1020,7 +1042,10 @@ function MCPcveDatabase() {
                           {cve.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-[11px] text-text-dim py-3 leading-relaxed break-words">{cve.digitalDroneRelevance}</TableCell>
+                      {/* Digital Drone Relevance */}
+                      <TableCell className="text-[11px] text-text-dim py-3 align-top whitespace-normal overflow-hidden leading-relaxed">
+                        {cve.digitalDroneRelevance}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1557,7 +1582,7 @@ function Footer() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/vril-labs-logo.svg" alt="VRIL LABS" className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity" />
             </a>
-            <p className="text-sm font-semibold animate-gradient-sayan inline-block">SuperSayanMCP</p>
+            <p className="text-sm font-semibold animate-gradient-sayan inline-block">Supersayan WebMCP Security</p>
             <p className="text-xs text-text-dim max-w-xs leading-relaxed">
               Next-generation WebMCP security intelligence. Built for the agentic web.
             </p>
