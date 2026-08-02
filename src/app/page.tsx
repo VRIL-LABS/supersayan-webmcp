@@ -987,7 +987,20 @@ function MCPcveDatabase() {
                 <TableBody>
                   {sorted.map((cve) => (
                     <TableRow key={cve.id} className="border-border-custom/50 hover:bg-surface-hover/30 align-top">
-                      <TableCell className="font-mono text-xs text-sayan-cyan whitespace-nowrap py-3">{cve.id}</TableCell>
+                      <TableCell className="font-mono text-xs text-sayan-cyan whitespace-nowrap py-3">
+                        {cve.nistUrl ? (
+                          <a
+                            href={cve.nistUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-sayan-teal underline underline-offset-2 decoration-sayan-cyan/40 hover:decoration-sayan-teal transition-colors"
+                          >
+                            {cve.id}
+                          </a>
+                        ) : (
+                          cve.id
+                        )}
+                      </TableCell>
                       <TableCell className="py-3">
                         <SeverityBadge severity={cve.severity} />
                       </TableCell>
@@ -1024,7 +1037,18 @@ function MCPcveDatabase() {
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-mono text-xs text-sayan-cyan leading-tight">{cve.id}</span>
+                  {cve.nistUrl ? (
+                    <a
+                      href={cve.nistUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-xs text-sayan-cyan leading-tight underline underline-offset-2 decoration-sayan-cyan/40 hover:text-sayan-teal hover:decoration-sayan-teal transition-colors"
+                    >
+                      {cve.id}
+                    </a>
+                  ) : (
+                    <span className="font-mono text-xs text-sayan-cyan leading-tight">{cve.id}</span>
+                  )}
                   <SeverityBadge severity={cve.severity} />
                 </div>
 
@@ -1070,7 +1094,7 @@ const threatStats = [
   { value: '1,400%', label: 'increase in AI agent bot traffic (2025)', color: 'text-sayan-red', icon: <Activity className="h-5 w-5" /> },
   { value: '135,000+', label: 'exposed OpenClaw agent instances', color: 'text-sayan-amber', icon: <Server className="h-5 w-5" /> },
   { value: '2.8%', label: 'of sites can detect AI agent traffic', color: 'text-sayan-cyan', icon: <Eye className="h-5 w-5" /> },
-  { value: '14+', label: 'CVEs in MCP ecosystem (2025-2026)', color: 'text-sayan-red', icon: <Bug className="h-5 w-5" /> },
+  { value: '18+', label: 'CVEs in MCP/WebMCP ecosystem (2025-2026)', color: 'text-sayan-red', icon: <Bug className="h-5 w-5" /> },
 ];
 
 const attackChain = [
