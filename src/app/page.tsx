@@ -970,29 +970,30 @@ function MCPcveDatabase() {
             </Button>
           </div>
 
-          <div className="rounded-xl border border-border-custom overflow-hidden bg-surface/50">
+          {/* ── Desktop table (md+) ── */}
+          <div className="hidden md:block rounded-xl border border-border-custom overflow-hidden bg-surface/50">
             <div className="overflow-x-auto">
-              <Table className="table-fixed w-full">
+              <Table className="table-auto w-full min-w-[860px]">
                 <TableHeader>
                   <TableRow className="border-border-custom hover:bg-transparent">
-                    <TableHead className="text-text-dim font-semibold text-xs w-[130px]">CVE ID</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[90px]">Severity</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[120px]">Component</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[28%]">Description</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs w-[110px]">Status</TableHead>
-                    <TableHead className="text-text-dim font-semibold text-xs">Digital Drone Relevance</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[130px] whitespace-nowrap">CVE ID</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[90px] whitespace-nowrap">Severity</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[120px] whitespace-nowrap">Component</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs min-w-[200px] max-w-[260px]">Description</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs w-[140px] whitespace-nowrap">Status</TableHead>
+                    <TableHead className="text-text-dim font-semibold text-xs min-w-[180px]">Digital Drone Relevance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sorted.map((cve) => (
-                    <TableRow key={cve.id} className="border-border-custom/50 hover:bg-surface-hover/30">
-                      <TableCell className="font-mono text-xs text-sayan-cyan whitespace-nowrap">{cve.id}</TableCell>
-                      <TableCell>
+                    <TableRow key={cve.id} className="border-border-custom/50 hover:bg-surface-hover/30 align-top">
+                      <TableCell className="font-mono text-xs text-sayan-cyan whitespace-nowrap py-3">{cve.id}</TableCell>
+                      <TableCell className="py-3">
                         <SeverityBadge severity={cve.severity} />
                       </TableCell>
-                      <TableCell className="text-xs text-text break-words">{cve.component}</TableCell>
-                      <TableCell className="text-xs text-text-dim break-words leading-relaxed">{cve.description}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs text-text py-3 break-words">{cve.component}</TableCell>
+                      <TableCell className="text-xs text-text-dim py-3 leading-relaxed break-words max-w-[260px]">{cve.description}</TableCell>
+                      <TableCell className="py-3">
                         <Badge
                           variant="outline"
                           className={`text-[10px] whitespace-nowrap ${
@@ -1006,12 +1007,54 @@ function MCPcveDatabase() {
                           {cve.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-[11px] text-text-dim break-words leading-relaxed">{cve.digitalDroneRelevance}</TableCell>
+                      <TableCell className="text-[11px] text-text-dim py-3 leading-relaxed break-words">{cve.digitalDroneRelevance}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
+          </div>
+
+          {/* ── Mobile card list (< md) ── */}
+          <div className="md:hidden flex flex-col gap-3">
+            {sorted.map((cve) => (
+              <div
+                key={cve.id}
+                className="rounded-xl border border-border-custom bg-surface/50 p-4 flex flex-col gap-3"
+              >
+                {/* Header row */}
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-mono text-xs text-sayan-cyan leading-tight">{cve.id}</span>
+                  <SeverityBadge severity={cve.severity} />
+                </div>
+
+                {/* Component + Status */}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs text-text font-medium">{cve.component}</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] whitespace-nowrap ${
+                      cve.status.includes('Patched')
+                        ? 'text-sayan-emerald border-sayan-emerald/30 bg-sayan-emerald/10'
+                        : cve.status.includes('Active')
+                          ? 'text-sayan-red border-sayan-red/30 bg-sayan-red/10'
+                          : 'text-sayan-amber border-sayan-amber/30 bg-sayan-amber/10'
+                    }`}
+                  >
+                    {cve.status}
+                  </Badge>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs text-text-dim leading-relaxed">{cve.description}</p>
+
+                {/* Drone relevance */}
+                <div className="border-t border-border-custom/40 pt-2">
+                  <p className="text-[10px] text-text-dim/70 uppercase tracking-wide mb-1">Digital Drone Relevance</p>
+                  <p className="text-[11px] text-text-dim leading-relaxed">{cve.digitalDroneRelevance}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
