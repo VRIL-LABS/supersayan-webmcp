@@ -2,15 +2,15 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service — SuperSayanMCP',
-  description: 'Terms of Service for SuperSayanMCP and VLABS, LLC.',
+  title: 'Terms of Service — Supersayan WebMCP Security',
+  description: 'Terms of Service for Supersayan WebMCP Security and VLABS, LLC.',
 };
 
 const EFFECTIVE_DATE = 'July 1, 2026';
 const COMPANY = 'VLABS, LLC';
-const PRODUCT = 'SuperSayanMCP';
+const PRODUCT = 'Supersayan WebMCP Security';
 const CONTACT_EMAIL = 'legal@vril.li';
-const SITE_URL = 'https://supersayan.vril.li';
+const SITE_URL = 'https://webmcp.vril.dev';
 
 export default function TermsPage() {
   return (
