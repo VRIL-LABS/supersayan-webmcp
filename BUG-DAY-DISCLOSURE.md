@@ -6,7 +6,7 @@
 
 ## Summary
 
-This document comprehensively details fifteen (15) newly-discovered (0-day before this document's release) vulnerabilities associated with Google Chrome's WebMCP API, including research methodology and instructions for reproduction. This research was produced with the help of the GLM 5.1 AI model on May 5, 2026.
+This document comprehensively details fifteen (15) newly-discovered (potentially novel before this document's release) vulnerabilities associated with Google Chrome's WebMCP API, including research methodology and instructions for reproduction. This research was produced with the help of the GLM 5.1 AI model on May 5, 2026.
 
 In order to check the security rating of your Google Chrome browser, see [webmcp.vril.dev](https://webmcp.vril.dev) which integrates secure scanning mechanisms covering all fifteen (15) CVEs described below.
 
