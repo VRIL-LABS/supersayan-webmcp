@@ -1,7 +1,8 @@
-# 15 Novel Google Chrome WebMCP API CVEs
+# 15 (Potentially) Novel Google Chrome WebMCP API CVEs
 **Disclosed:** 08-01-2026
-**Author:** [VRIL LABS](https://vril.li)
+**Lab Website:** [https://webmcp.vril.dev](webmcp.vril.dev)
 **GitHub:** https://github.com/VRTL-LABS/supersayan-webmcp
+**Author:** [VRIL LABS](https://vril.li)
 
 ## Summary
 
