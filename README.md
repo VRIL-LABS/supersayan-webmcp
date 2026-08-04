@@ -4,7 +4,9 @@
 
 # SuperSayan — WebMCP Security
 
-A full-stack security research platform for Google Chrome's **WebMCP API**, built by [VRIL LABS](https://vril.li). It covers 15 novel 0-day CVEs disclosed on 2026-08-01, with live detection scanning, offensive simulation, and defensive hardening — all accessible at [webmcp.vril.dev](https://webmcp.vril.dev).
+A full-stack security research platform for Google Chrome's **WebMCP API**, built by [VRIL LABS](https://vril.li). It covers 15 novel 0-day CVEs disclosed on 2026-08-01, with live detection scanning, offensive simulation, and defensive hardening — all accessible at [webmcp.vril.dev](https://webmcp.vril.dev).<br /><br />
+
+***The potentially novel CVEs detailed in this document were reported to Google on 8/04/2026.***
 
 ---
 
