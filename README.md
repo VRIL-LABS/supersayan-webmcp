@@ -24,7 +24,7 @@ A full-stack security research platform for Google Chrome's **WebMCP API**, buil
 
 `SW-MCP-PERSIST` · `GPU-AGENT-PROXY` · `DOM-CLOBBER-MCP` · `EXT-MCP-BRIDGE` · `ANNOTATION-CONFUSION` · `CSS-KEY-MCP` · `QUIC-MCP-REPLAY` · `AUDIO-MCP-FP` · `MCP-SUPPLY-CHAIN` · `ELICIT-PHISH` · `ABORT-RACE` · `DECL-FORM-HIJACK` · `CLIENT-INVERT` · `COMPOSE-XOR` · `OBSERVE-ORACLE`
 
-Full disclosure: [`0-DAY-DISCLOSURE.md`](0-DAY-DISCLOSURE.md)
+Full disclosure: [`0-DAY-DISCLOSURE.md`](BUG-DISCLOSURE.md)
 
 ## Stack
 
